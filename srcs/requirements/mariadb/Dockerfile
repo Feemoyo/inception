@@ -12,6 +12,7 @@ RUN service mariadb start && \
 mariadb -u root -e \
 "CREATE DATABASE IF NOT EXISTS wordpress_db; \
 CREATE USER 'wuser'@'%' identified by 'wpass'; \
+GRANT ALL ON wordpress_db.* TO 'wuser'@'%' IDENTIFIED BY 'wpass'; \
 FLUSH PRIVILEGES;" && \
 service mariadb stop
 

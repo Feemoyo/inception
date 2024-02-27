@@ -22,4 +22,13 @@ RUN wget https://wordpress.org/latest.tar.gz && \
 	rm -rf latest.tar.gz
 
 RUN cp wp-config-sample.php wp-config.php && \
-	
+	sed -i "s/database_name_here/wordpress_db/g" wp-config.php && \
+	sed -i "s/username_here/wuser/g" wp-config.php && \
+	sed -i "s/password_here/wpass/g" wp-config.php && \
+	sed -i "s/localhost/mariadb/g" wp-config.php
+
+RUN mkdir -p /run/php
+
+RUN ln -s $(find /usr/sbin -name 'php-fpm*') /usr/bin/php-fpm
+
+CMD ["php-fpm", "-F"]
