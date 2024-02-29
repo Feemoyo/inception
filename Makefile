@@ -1,5 +1,5 @@
 ALLPS		:= $(shell docker ps -a -q)
-ALLIMG		:= $(shell docker images -a -q)
+ALLIMG		:= $(shell docker images -q)
 ALLVOL		:= $(shell docker volume ls -q)
 
 LOGIN		= fmoreira
