@@ -6,10 +6,12 @@ LOGIN		= fmoreira
 DATA		= data
 MARIADB		= mariadb
 WPRESS		= wordpress
+NGINX		= nginx
 
 PWD_AUX		:= $(PWD)
 MARIA_P		= ./srcs/requirements/mariadb
 WPRESS_P	= ./srcs/requirements/wordpress
+NGINX_P		= ./srcs/requirements/nginx
 
 NETWORK	= inception-network
 
@@ -33,14 +35,18 @@ volumes:
 images:
 	docker build --tag ${MARIADB}_image ${MARIA_P}
 	docker build --tag ${WPRESS}_image ${WPRESS_P}
+	docker build --tag ${NGINX}_image ${NGINX_P}
 
 containers:
 	docker run -d --network ${NETWORK} --network-alias ${MARIADB} \
 		--mount source=${MARIADB}-volume,target=/var/lib/mysql \
 		${MARIADB}_image
 	docker run -d --network ${NETWORK} --network-alias ${WPRESS} \
-                --mount source=${WPRESS}-volume,target=/var/lib/mysql \
+                --mount source=${WPRESS}-volume,target=/var/www/html \
                 ${WPRESS}_image
+	docker run -d --network ${NETWORK} --publish 443:443 \
+		--mount source=${WPRESS}-volume,target=/var/www/html \
+		${NGINX}_image
 
 stop:
 	docker stop ${ALLPS}
@@ -58,7 +64,7 @@ rmvall:
 	docker volume rm ${ALLVOL}
 
 fclean: stop rmall rmiall rmvall
-	sudo rm -rf $(pwd)/../${LOGIN}
+	sudo rm -rf ./$(pwd)/../${LOGIN}
 	docker network rm ${NETWORK}
 
 re: fclean all
