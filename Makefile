@@ -9,10 +9,10 @@ ALLVOL			:= $(shell docker volume ls -q)
 all: setup up
 
 up:
-	sudo docker-compose --file=./srcs/docker-compose.yml --project-name=Inception  up --build --detach
+	sudo docker-compose --file=./srcs/docker-compose.yml --project-name=Inception up --build -d
 
 down:
-	sudo docker-compose --file=./srcs/docker-compose.yml down
+	sudo docker-compose --file=./srcs/docker-compose.yml --project-name=Inception down
 
 setup:
 	sudo mkdir -p ${HOME}/${LOGIN}/${DATA}/${MARIADB}
@@ -21,6 +21,7 @@ setup:
 
 cleanv:
 	docker volume rm ${ALLVOL}
+	sudo rm -rf ${HOME}/${LOGIN}
 
 fclean: down cleanv
 	docker system prune --all --force --volumes

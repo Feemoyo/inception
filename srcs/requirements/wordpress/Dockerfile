@@ -14,10 +14,13 @@ RUN	apt install -y \
 	php-fpm \
 	php-mysql \
 	mariadb-client -y \
-	wget
+	wget \
+	sudo
 
 RUN	sed -i.default "/^listen\s=.*/c\listen = 0.0.0.0:9000" \
 	/etc/php/[0-9]*.[0-9]*/fpm/pool.d/www.conf
+
+COPY	./tools/wp_config.sh /tmp/wp_config.sh
 
 RUN	wget https://wordpress.org/latest.tar.gz && \
 	tar -xzf latest.tar.gz && \
@@ -25,14 +28,10 @@ RUN	wget https://wordpress.org/latest.tar.gz && \
 	rm -rf wordpress && \
 	rm -rf latest.tar.gz
 
-RUN	cp wp-config-sample.php wp-config.php && \
-	sed -i "s/database_name_here/$WP_DB/g" wp-config.php && \
-	sed -i "s/username_here/$WP_USER/g" wp-config.php && \
-	sed -i "s/password_here/$WP_PASSWORD/g" wp-config.php && \
-	sed -i "s/localhost/mariadb/g" wp-config.php
+RUN	wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+	chmod +x wp-cli.phar && \
+	mv wp-cli.phar /usr/bin/wp
 
 RUN	mkdir -p /run/php
 
-RUN	ln -s $(find /usr/sbin -name 'php-fpm*') /usr/bin/php-fpm
-
-CMD	["php-fpm", "-F"]
+CMD	["sh", "/tmp/wp_config.sh"]
